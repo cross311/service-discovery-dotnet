@@ -12,10 +12,7 @@ namespace service_discovery
         public ServiceRegistry() 
             : this(new InMemoryServiceRegistryRepository()) { }
 
-        public ServiceRegistry(TimeSpan checkInWithinTime)
-            : this(new InMemoryServiceRegistryRepository(checkInWithinTime)) { }
-
-        public ServiceRegistry(IServiceRegistryRepository serviceRegistryRepository)
+        internal ServiceRegistry(IServiceRegistryRepository serviceRegistryRepository)
         {
             if(ReferenceEquals(serviceRegistryRepository, null)) throw new ArgumentNullException("serviceRegistryRepository");
 
@@ -26,15 +23,17 @@ namespace service_discovery
         {
             var resource = registration.Resource;
             var serviceUriString = registration.InstanceServiceUri;
+            var timeToLive = registration.TimeToLive;
 
-            var invalidResponse =  ValidateRegistration(resource, serviceUriString);
+            var invalidResponse = ValidateRegistration(resource, serviceUriString, timeToLive);
 
             if (!ReferenceEquals(invalidResponse, null))
             {
                 return invalidResponse;
             }
 
-            var serviceInstance = _ServiceRegistryRepository.AddOrUpdate(resource, serviceUriString);
+            var registrationExpiresAt = RegistrationExpiresAt(timeToLive);
+            var serviceInstance = _ServiceRegistryRepository.AddOrUpdate(resource, serviceUriString, registrationExpiresAt);
 
             var successResult = new RegistrationTicket(serviceInstance);
 
@@ -51,7 +50,20 @@ namespace service_discovery
             return validInstances;
         }
 
-        private static RegistrationTicket ValidateRegistration(string resource, string serviceUriString)
+        private static DateTime RegistrationExpiresAt(TimeSpan timeToLive)
+        {
+            if (timeToLive == TimeSpan.MaxValue)
+                return DateTime.MaxValue;
+
+            var utcNow = DateTime.UtcNow;
+
+            if ((DateTime.MaxValue - utcNow) < timeToLive)
+                return DateTime.MaxValue;
+
+            return utcNow.Add(timeToLive);
+        }
+
+        private static RegistrationTicket ValidateRegistration(string resource, string serviceUriString, TimeSpan timeToLive)
         {
             if (string.IsNullOrWhiteSpace(resource))
             {
@@ -71,6 +83,12 @@ namespace service_discovery
                 return serviceUriNotValid;
             }
 
+            if (timeToLive <= TimeSpan.Zero)
+            {
+                var timeToLiveNotValid = new RegistrationTicket(RegistrationFailReasons.TimeToLiveMustBeGreaterThanZero, resource, serviceUriString);
+                return timeToLiveNotValid;
+            }
+
             return null;
         }
     }
@@ -79,15 +97,23 @@ namespace service_discovery
     {
         private readonly string _Resource;
         private readonly string _InstanceServiceUri;
+        private readonly TimeSpan _TimeToLive;
 
         public ServiceRegistration(string resource, string instanceServiceUri)
+            : this(resource, instanceServiceUri, TimeSpan.MaxValue)
+        {
+        }
+
+        public ServiceRegistration(string resource, string instanceServiceUri, TimeSpan timeToLive)
         {
             _Resource = resource;
             _InstanceServiceUri = instanceServiceUri;
+            _TimeToLive = timeToLive;
         }
 
         public string Resource { get { return _Resource; } }
         public string InstanceServiceUri { get { return _InstanceServiceUri; } }
+        public TimeSpan TimeToLive { get { return _TimeToLive; } }
     }
 
     public class RegistrationTicket
@@ -149,7 +175,8 @@ namespace service_discovery
         None,
         ResourceMustNotBeEmpty,
         InstanceServiceUriMustNotBeEmpty,
-        InstanceServiceUriMustBeValidUri
+        InstanceServiceUriMustBeValidUri,
+        TimeToLiveMustBeGreaterThanZero
     }
 
     public class ServiceInstance

@@ -80,14 +80,13 @@ namespace service_registry_test
         }
 
         [TestMethod]
-        public void NotReturnInstancesThatHaveNotCheckedInWithinConfiguredTime()
+        public void NotReturnInstancesThatHaveNotCheckedInWithinRegisteredTimeToLive()
         {
-            _ServiceRegistry = new ServiceRegistry(TimeSpan.FromSeconds(-10));
-
+            var timeToLive = TimeSpan.FromTicks(1);
             var resource = "test-service";
             var instanceServiceUri = "http://testservice.com/api/v1";
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri);
+            var registration = new ServiceRegistration(resource, instanceServiceUri, timeToLive);
             _ServiceRegistry.Register(registration);
 
             var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(resource).ToList();

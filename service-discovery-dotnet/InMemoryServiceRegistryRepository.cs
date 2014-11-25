@@ -7,17 +7,11 @@ namespace service_discovery
 {
     internal class InMemoryServiceRegistryRepository : IServiceRegistryRepository
     {
-        private static readonly TimeSpan _DefaultCheckInWithinTime = TimeSpan.FromMinutes(2);
-        private readonly TimeSpan _CheckInWithinTime;
         private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, ServiceInstance>> _Repository;
 
         public InMemoryServiceRegistryRepository()
-            : this(_DefaultCheckInWithinTime) { }
-
-        public InMemoryServiceRegistryRepository(TimeSpan checkInWithInTime)
         {
             _Repository = new ConcurrentDictionary<string, ConcurrentDictionary<string, ServiceInstance>>();
-            _CheckInWithinTime = checkInWithInTime;
         }
 
 
@@ -31,21 +25,20 @@ namespace service_discovery
             if (!_Repository.TryGetValue(normalizedResource, out instancesLookup))
                 return Enumerable.Empty<ServiceInstance>();
 
-            var validCheckInWithinTime = DateTime.UtcNow.Subtract(_CheckInWithinTime);
+            var utcNow = DateTime.UtcNow;
 
             var instances = instancesLookup.Values;
-            var validInstances = instances.Where(instance => instance.RegistrationExpiresAt > validCheckInWithinTime);
+            var validInstances = instances.Where(instance => instance.RegistrationExpiresAt > utcNow);
 
             return validInstances;
         }
 
-        public ServiceInstance AddOrUpdate(string resource, string serviceUriString)
+        public ServiceInstance AddOrUpdate(string resource, string serviceUriString, DateTime registrationExperation)
         {
             if (string.IsNullOrWhiteSpace(resource)) throw new ArgumentNullException("resource");
             if (string.IsNullOrWhiteSpace(serviceUriString)) throw new ArgumentNullException("serviceUriString");
+            if (registrationExperation == DateTime.MinValue) throw new ArgumentOutOfRangeException("registrationExperation");
 
-
-            var ticketValidForTwoMinutes = DateTime.UtcNow.Add(_CheckInWithinTime);
 
             var resourceNormalized = NormalizeKey(resource);
 
@@ -55,8 +48,8 @@ namespace service_discovery
 
             var serviceInstance = resourceInstances.AddOrUpdate(
                                     serviceUriNormalized,
-                                    new ServiceInstance(resourceNormalized, serviceUriNormalized, ticketValidForTwoMinutes),
-                                    (_k, currentInstance) => new ServiceInstance(currentInstance, ticketValidForTwoMinutes));
+                                    new ServiceInstance(resourceNormalized, serviceUriNormalized, registrationExperation),
+                                    (_k, currentInstance) => new ServiceInstance(currentInstance, registrationExperation));
             return serviceInstance;
         }
 
