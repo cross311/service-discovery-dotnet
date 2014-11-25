@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using service_registry_dotnet;
+using service_discovery;
 using FluentAssertions;
 using System.Linq;
 

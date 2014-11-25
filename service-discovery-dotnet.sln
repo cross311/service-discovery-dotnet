@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "service-registry-dotnet", "service-registry-dotnet\service-registry-dotnet.csproj", "{F5AEA8D1-AE95-48D0-A1B4-7B802B20896D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "service-discovery-dotnet", "service-discovery-dotnet\service-discovery-dotnet.csproj", "{F5AEA8D1-AE95-48D0-A1B4-7B802B20896D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "service-registry-test", "service-registry-test\service-registry-test.csproj", "{153CDC91-FCEF-4752-9D60-B0DCA1DD0EB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "service-discovery-test", "service-discovery-test\service-discovery-test.csproj", "{153CDC91-FCEF-4752-9D60-B0DCA1DD0EB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

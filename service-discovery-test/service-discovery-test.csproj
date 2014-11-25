@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>service_registry_test</RootNamespace>
-    <AssemblyName>service-registry-test</AssemblyName>
+    <AssemblyName>service-discovery-test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -66,9 +66,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\service-registry-dotnet\service-registry-dotnet.csproj">
+    <ProjectReference Include="..\service-registry-dotnet\service-discovery-dotnet.csproj">
       <Project>{f5aea8d1-ae95-48d0-a1b4-7b802b20896d}</Project>
-      <Name>service-registry-dotnet</Name>
+      <Name>service-discovery-dotnet</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

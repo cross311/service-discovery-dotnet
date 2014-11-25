@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace service_registry_dotnet
+namespace service_discovery
 {
     internal class InMemoryServiceRegistryRepository : IServiceRegistryRepository
     {

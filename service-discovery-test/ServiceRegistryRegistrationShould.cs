@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
-using service_registry_dotnet;
+using service_discovery;
 using System.Collections.Generic;
 
 namespace service_registry_test

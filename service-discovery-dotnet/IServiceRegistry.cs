@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace service_registry_dotnet
+namespace service_discovery
 {
     public interface IServiceRegistry
     {
