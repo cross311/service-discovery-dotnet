@@ -39,6 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InMemoryServiceRegistryRepository.cs" />
+    <Compile Include="IServiceRegistry.cs" />
+    <Compile Include="IServiceRegistryRepository.cs" />
     <Compile Include="ServiceRegistry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

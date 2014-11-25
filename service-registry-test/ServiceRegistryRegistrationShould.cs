@@ -9,7 +9,7 @@ namespace service_registry_test
     [TestClass]
     public class ServiceRegistryRegistrationShould
     {
-        ServiceRegistry _ServiceRegistry;
+        IServiceRegistry _ServiceRegistry;
 
         [TestInitialize]
         public void TestInitialize()

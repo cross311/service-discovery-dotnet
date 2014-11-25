@@ -7,19 +7,27 @@ using System.Threading.Tasks;
 
 namespace service_registry_dotnet
 {
-    public class ServiceRegistry
+    public class ServiceRegistry : IServiceRegistry
     {
         private static readonly TimeSpan _DefaultCheckInWithinTime = TimeSpan.FromMinutes(2);
         private static readonly IEnumerable<ServiceInstance> _EmptyServiceInstances = Enumerable.Empty<ServiceInstance>();
         private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, ServiceInstance>> _ServiceRegistry;
+        private readonly IServiceRegistryRepository _ServiceRegistryRepository;
         private readonly TimeSpan _CheckInWithinTime;
 
-        public ServiceRegistry() : this(_DefaultCheckInWithinTime) { }
+        public ServiceRegistry() 
+            : this(_DefaultCheckInWithinTime) { }
 
         public ServiceRegistry(TimeSpan checkInWithinTime)
+            : this(checkInWithinTime, new InMemoryServiceRegistryRepository()) { }
+
+        public ServiceRegistry(TimeSpan checkInWithinTime, IServiceRegistryRepository serviceRegistryRepository)
         {
-            _ServiceRegistry = new ConcurrentDictionary<string, ConcurrentDictionary<string, ServiceInstance>>();
+            if(ReferenceEquals(serviceRegistryRepository, null)) throw new ArgumentNullException("serviceRegistryRepository");
+
             _CheckInWithinTime = checkInWithinTime;
+            _ServiceRegistryRepository = serviceRegistryRepository;
+            _ServiceRegistry = new ConcurrentDictionary<string, ConcurrentDictionary<string, ServiceInstance>>();
         }
 
         public RegistrationTicket Register(ServiceRegistration registration)
