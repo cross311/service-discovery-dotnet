@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace service_discovery
 {
@@ -97,7 +94,6 @@ namespace service_discovery
     {
         private readonly bool _Success;
         private readonly RegistrationFailReasons _FailReason;
-        private readonly Guid _InstanceRegistrationUniqueIdentifier;
         private readonly string _Resource;
         private readonly string _InstanceServiceUri;
         private readonly DateTime _RegistrationExpiresAt;
@@ -107,7 +103,6 @@ namespace service_discovery
             :this(
             true,
             RegistrationFailReasons.None,
-            serviceInstance.UniqueIdentifier,
             serviceInstance.Resource,
             serviceInstance.ServiceUri,
             serviceInstance.RegistrationExpiresAt)
@@ -121,7 +116,6 @@ namespace service_discovery
             : this(
                 false,
                 failReason,
-                Guid.Empty,
                 resource,
                 instanceServiceUri,
                 DateTime.MinValue)
@@ -132,14 +126,12 @@ namespace service_discovery
         private RegistrationTicket(
             bool success,
             RegistrationFailReasons failReason, 
-            Guid instanceRegistrationUniqueIdentifier, 
             string resource,
             string instanceServiceUri, 
             DateTime registrationExpiresAt)
         {
             _Success = success;
             _FailReason = failReason;
-            _InstanceRegistrationUniqueIdentifier = instanceRegistrationUniqueIdentifier;
             _Resource = resource;
             _InstanceServiceUri = instanceServiceUri;
             _RegistrationExpiresAt = registrationExpiresAt;
@@ -147,7 +139,6 @@ namespace service_discovery
 
         public bool Success { get { return _Success; } }
         public RegistrationFailReasons FailReason { get { return _FailReason; } }
-        public Guid InstanceRegistrationUniqueIdentifier { get { return _InstanceRegistrationUniqueIdentifier; } }
         public string Resource { get { return _Resource; } }
         public string InstanceServiceUri { get { return _InstanceServiceUri; } }
         public DateTime RegistrationExpiresAt { get { return _RegistrationExpiresAt; } }
@@ -166,38 +157,23 @@ namespace service_discovery
         private readonly string _Resource;
         private readonly string _ServiceUri;
         private readonly DateTime _RegistrationExpiresAt;
-        private readonly Guid _UniqueIdentifier;
-
-        internal ServiceInstance(
-            string resource,
-            string serviceUri,
-            DateTime registrationExpiresAt)
-            : this(
-            Guid.NewGuid(),
-            resource,
-            serviceUri,
-            registrationExpiresAt) { }
 
         internal ServiceInstance(
             ServiceInstance currentInstance,
             DateTime registrationExpiresAt)
             : this(
-            currentInstance.UniqueIdentifier,
             currentInstance.Resource,
             currentInstance.ServiceUri,
             registrationExpiresAt) { }
 
         public ServiceInstance(
-            Guid uniqueIdentifier,
             string resource,
             string serviceUri,
             DateTime registrationExpiresAt)
         {
-            if (ReferenceEquals(uniqueIdentifier, Guid.Empty)) throw new ArgumentNullException("uniqueIdentifier");
             if (string.IsNullOrWhiteSpace(resource)) throw new ArgumentNullException("resource");
             if (string.IsNullOrWhiteSpace(serviceUri)) throw new ArgumentNullException("serviceUri");
 
-            _UniqueIdentifier = uniqueIdentifier;
             _Resource = resource;
             _ServiceUri = serviceUri;
             _RegistrationExpiresAt = registrationExpiresAt;
@@ -216,11 +192,6 @@ namespace service_discovery
         public string ServiceUri
         {
             get { return _ServiceUri; }
-        }
-
-        public Guid UniqueIdentifier
-        {
-            get { return _UniqueIdentifier; }
         }
 
     }
