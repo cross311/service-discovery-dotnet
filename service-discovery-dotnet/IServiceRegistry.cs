@@ -5,7 +5,7 @@ namespace service_discovery
 {
     public interface IServiceRegistry
     {
-        IEnumerable<ServiceInstance> GetServiceInstancesForResource(string resource);
+        IEnumerable<ServiceInstance> GetServiceInstancesForResource(ServiceInstancesRequest request);
         RegistrationTicket Register(ServiceRegistration registration);
     }
 }
