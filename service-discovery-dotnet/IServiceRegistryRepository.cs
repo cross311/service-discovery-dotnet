@@ -10,6 +10,6 @@ namespace service_discovery
     {
         IEnumerable<ServiceInstance> GetServiceInstancesForResource(string resource);
 
-        ServiceInstance AddOrUpdate(string resource, string serviceUriString);
+        ServiceInstance AddOrUpdate(string resource, string serviceUriString, DateTime registrationExperation);
     }
 }
