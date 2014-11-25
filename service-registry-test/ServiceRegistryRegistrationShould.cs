@@ -33,7 +33,7 @@ namespace service_registry_test
             registrationTicket.InstanceRegistrationUniqueIdentifier.Should().NotBe(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.TicketGoodUntil.Should().BeWithin(TimeSpan.FromMinutes(2));
+            registrationTicket.RegistrationExpiresAt.Should().BeWithin(TimeSpan.FromMinutes(2));
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@ namespace service_registry_test
             registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.TicketGoodUntil.Should().Be(DateTime.MinValue);
+            registrationTicket.RegistrationExpiresAt.Should().Be(DateTime.MinValue);
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@ namespace service_registry_test
             registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.TicketGoodUntil.Should().Be(DateTime.MinValue);
+            registrationTicket.RegistrationExpiresAt.Should().Be(DateTime.MinValue);
         }
 
         [TestMethod]
@@ -90,7 +90,7 @@ namespace service_registry_test
             registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.TicketGoodUntil.Should().Be(DateTime.MinValue);
+            registrationTicket.RegistrationExpiresAt.Should().Be(DateTime.MinValue);
         }
 
         [TestMethod]
@@ -109,7 +109,7 @@ namespace service_registry_test
             registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.TicketGoodUntil.Should().Be(DateTime.MinValue);
+            registrationTicket.RegistrationExpiresAt.Should().Be(DateTime.MinValue);
         }
 
         [TestMethod]
@@ -128,7 +128,7 @@ namespace service_registry_test
             registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.TicketGoodUntil.Should().Be(DateTime.MinValue);
+            registrationTicket.RegistrationExpiresAt.Should().Be(DateTime.MinValue);
         }
 
         [TestMethod]

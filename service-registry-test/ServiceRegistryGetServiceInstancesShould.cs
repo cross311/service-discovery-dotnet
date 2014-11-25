@@ -41,7 +41,7 @@ namespace service_registry_test
             serviceInstances.Count.Should().Be(1);
             var instance = serviceInstances[0];
             instance.ServiceUri.Should().Be(instanceServiceUri);
-            instance.LastValidHealthCheck.Should().BeWithin(TimeSpan.FromSeconds(1));
+            instance.RegistrationExpiresAt.Should().BeWithin(TimeSpan.FromSeconds(1));
             instance.UniqueIdentifier.Should().NotBe(Guid.Empty);
         }
 

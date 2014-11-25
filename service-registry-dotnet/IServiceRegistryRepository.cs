@@ -8,5 +8,8 @@ namespace service_registry_dotnet
 {
     public interface IServiceRegistryRepository
     {
+        IEnumerable<ServiceInstance> GetServiceInstancesForResource(string resource);
+
+        ServiceInstance AddOrUpdate(string resource, string serviceUriString, string healthCheckUriString);
     }
 }

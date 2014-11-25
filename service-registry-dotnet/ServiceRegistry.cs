@@ -9,25 +9,20 @@ namespace service_registry_dotnet
 {
     public class ServiceRegistry : IServiceRegistry
     {
-        private static readonly TimeSpan _DefaultCheckInWithinTime = TimeSpan.FromMinutes(2);
         private static readonly IEnumerable<ServiceInstance> _EmptyServiceInstances = Enumerable.Empty<ServiceInstance>();
-        private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, ServiceInstance>> _ServiceRegistry;
         private readonly IServiceRegistryRepository _ServiceRegistryRepository;
-        private readonly TimeSpan _CheckInWithinTime;
 
         public ServiceRegistry() 
-            : this(_DefaultCheckInWithinTime) { }
+            : this(new InMemoryServiceRegistryRepository()) { }
 
         public ServiceRegistry(TimeSpan checkInWithinTime)
-            : this(checkInWithinTime, new InMemoryServiceRegistryRepository()) { }
+            : this(new InMemoryServiceRegistryRepository(checkInWithinTime)) { }
 
-        public ServiceRegistry(TimeSpan checkInWithinTime, IServiceRegistryRepository serviceRegistryRepository)
+        public ServiceRegistry(IServiceRegistryRepository serviceRegistryRepository)
         {
             if(ReferenceEquals(serviceRegistryRepository, null)) throw new ArgumentNullException("serviceRegistryRepository");
 
-            _CheckInWithinTime = checkInWithinTime;
             _ServiceRegistryRepository = serviceRegistryRepository;
-            _ServiceRegistry = new ConcurrentDictionary<string, ConcurrentDictionary<string, ServiceInstance>>();
         }
 
         public RegistrationTicket Register(ServiceRegistration registration)
@@ -43,20 +38,9 @@ namespace service_registry_dotnet
                 return invalidResponse;
             }
 
-            var ticketValidForTwoMinutes = DateTime.UtcNow.Add(_CheckInWithinTime);
+            var serviceInstance = _ServiceRegistryRepository.AddOrUpdate(resource, serviceUriString, healthCheckUriString);
 
-            var resourceNormalized = NormalizeKey(resource);
-
-            var resourceInstances = _ServiceRegistry.GetOrAdd(resourceNormalized, new ConcurrentDictionary<string, ServiceInstance>());
-
-            var serviceUriNormalized = NormalizeKey(serviceUriString);
-
-            var serviceInstance = resourceInstances.AddOrUpdate(
-                                    serviceUriNormalized,
-                                    new ServiceInstance(resourceNormalized, serviceUriNormalized, healthCheckUriString),
-                                    (_k, currentInstance) => new ServiceInstance(currentInstance));
-
-            var successResult = new RegistrationTicket(serviceInstance, ticketValidForTwoMinutes);
+            var successResult = new RegistrationTicket(serviceInstance);
 
             return successResult;
         }
@@ -66,23 +50,9 @@ namespace service_registry_dotnet
             if(string.IsNullOrWhiteSpace(resource))
                 return _EmptyServiceInstances;
 
-            var normalizedResource = NormalizeKey(resource);
-            ConcurrentDictionary<string, ServiceInstance> instancesLookup;
+            var validInstances = _ServiceRegistryRepository.GetServiceInstancesForResource(resource);
 
-            if(!_ServiceRegistry.TryGetValue(normalizedResource, out instancesLookup))
-                return _EmptyServiceInstances;
-
-            var validCheckInWithinTime = DateTime.UtcNow.Subtract(_CheckInWithinTime);
-
-            var instances = instancesLookup.Values;
-            var validInstances = instances.Where(instance => instance.LastValidHealthCheck > validCheckInWithinTime);
             return validInstances;
-        }
-
-        private static string NormalizeKey(string key)
-        {
-            var normalized = key.ToLowerInvariant().Trim();
-            return normalized;
         }
 
         private static RegistrationTicket ValidateRegistration(string resource, string serviceUriString, string healthCheckUriString)
@@ -146,22 +116,21 @@ namespace service_registry_dotnet
         private readonly Guid _InstanceRegistrationUniqueIdentifier;
         private readonly string _Resource;
         private readonly string _InstanceServiceUri;
-        private readonly DateTime _TicketGoodUntil;
+        private readonly DateTime _RegistrationExpiresAt;
 
-        public RegistrationTicket(
-            ServiceInstance serviceInstance,
-            DateTime ticketGoodUntil)
+        internal RegistrationTicket(
+            ServiceInstance serviceInstance)
             :this(
             true,
             RegistrationFailReasons.None,
             serviceInstance.UniqueIdentifier,
             serviceInstance.Resource,
             serviceInstance.ServiceUri,
-            ticketGoodUntil)
+            serviceInstance.RegistrationExpiresAt)
         {
         }
 
-        public RegistrationTicket(
+        internal RegistrationTicket(
             RegistrationFailReasons failReason,
             string resource,
             string instanceServiceUri)
@@ -182,14 +151,14 @@ namespace service_registry_dotnet
             Guid instanceRegistrationUniqueIdentifier, 
             string resource,
             string instanceServiceUri, 
-            DateTime ticketGoodUntil)
+            DateTime registrationExpiresAt)
         {
             _Success = success;
             _FailReason = failReason;
             _InstanceRegistrationUniqueIdentifier = instanceRegistrationUniqueIdentifier;
             _Resource = resource;
             _InstanceServiceUri = instanceServiceUri;
-            _TicketGoodUntil = ticketGoodUntil;
+            _RegistrationExpiresAt = registrationExpiresAt;
         }
 
         public bool Success { get { return _Success; } }
@@ -197,7 +166,7 @@ namespace service_registry_dotnet
         public Guid InstanceRegistrationUniqueIdentifier { get { return _InstanceRegistrationUniqueIdentifier; } }
         public string Resource { get { return _Resource; } }
         public string InstanceServiceUri { get { return _InstanceServiceUri; } }
-        public DateTime TicketGoodUntil { get { return _TicketGoodUntil; } }
+        public DateTime RegistrationExpiresAt { get { return _RegistrationExpiresAt; } }
     }
 
     public enum RegistrationFailReasons
@@ -215,43 +184,53 @@ namespace service_registry_dotnet
         private readonly string _Resource;
         private readonly string _ServiceUri;
         private readonly string _HealthCheckUri;
-        private readonly DateTime _LastValidHealthCheck;
+        private readonly DateTime _RegistrationExpiresAt;
         private readonly Guid _UniqueIdentifier;
 
-        public ServiceInstance(
+        internal ServiceInstance(
             string resource,
             string serviceUri,
-            string healthCheckUri)
+            string healthCheckUri,
+            DateTime registrationExpiresAt)
             : this(
             Guid.NewGuid(),
             resource,
             serviceUri,
-            healthCheckUri) { }
+            healthCheckUri,
+            registrationExpiresAt) { }
 
-        public ServiceInstance(
-            ServiceInstance currentInstance)
+        internal ServiceInstance(
+            ServiceInstance currentInstance,
+            DateTime registrationExpiresAt)
             : this(
             currentInstance.UniqueIdentifier,
             currentInstance.Resource,
             currentInstance.ServiceUri,
-            currentInstance.HealthCheckUri) { }
+            currentInstance.HealthCheckUri,
+            registrationExpiresAt) { }
 
-        private ServiceInstance(
+        public ServiceInstance(
             Guid uniqueIdentifier,
             string resource,
             string serviceUri,
-            string healthCheckUri)
+            string healthCheckUri,
+            DateTime registrationExpiresAt)
         {
+            if (ReferenceEquals(uniqueIdentifier, Guid.Empty)) throw new ArgumentNullException("uniqueIdentifier");
+            if (string.IsNullOrWhiteSpace(resource)) throw new ArgumentNullException("resource");
+            if (string.IsNullOrWhiteSpace(serviceUri)) throw new ArgumentNullException("serviceUri");
+            if (string.IsNullOrWhiteSpace(healthCheckUri)) throw new ArgumentNullException("healthCheckUri");
+
             _UniqueIdentifier = uniqueIdentifier;
             _Resource = resource;
             _ServiceUri = serviceUri;
             _HealthCheckUri = healthCheckUri;
-            _LastValidHealthCheck = DateTime.UtcNow;
+            _RegistrationExpiresAt = registrationExpiresAt;
         }
 
-        public DateTime LastValidHealthCheck
+        public DateTime RegistrationExpiresAt
         {
-            get { return _LastValidHealthCheck; }
+            get { return _RegistrationExpiresAt; }
         }
 
         public string Resource
