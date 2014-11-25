@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "service-registry-dotnet", "service-registry-dotnet\service-registry-dotnet.csproj", "{F5AEA8D1-AE95-48D0-A1B4-7B802B20896D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "service-registry-test", "service-registry-test\service-registry-test.csproj", "{153CDC91-FCEF-4752-9D60-B0DCA1DD0EB8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5AEA8D1-AE95-48D0-A1B4-7B802B20896D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5AEA8D1-AE95-48D0-A1B4-7B802B20896D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5AEA8D1-AE95-48D0-A1B4-7B802B20896D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5AEA8D1-AE95-48D0-A1B4-7B802B20896D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{153CDC91-FCEF-4752-9D60-B0DCA1DD0EB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{153CDC91-FCEF-4752-9D60-B0DCA1DD0EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{153CDC91-FCEF-4752-9D60-B0DCA1DD0EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{153CDC91-FCEF-4752-9D60-B0DCA1DD0EB8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
