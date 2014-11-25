@@ -41,7 +41,6 @@ namespace service_registry_test
             var instance = serviceInstances[0];
             instance.ServiceUri.Should().Be(instanceServiceUri);
             instance.RegistrationExpiresAt.Should().BeWithin(TimeSpan.FromSeconds(1));
-            instance.UniqueIdentifier.Should().NotBe(Guid.Empty);
         }
 
         [TestMethod]

@@ -29,7 +29,6 @@ namespace service_registry_test
 
             registrationTicket.Success.Should().BeTrue();
             registrationTicket.FailReason.Should().Be(RegistrationFailReasons.None);
-            registrationTicket.InstanceRegistrationUniqueIdentifier.Should().NotBe(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
             registrationTicket.RegistrationExpiresAt.Should().BeWithin(TimeSpan.FromMinutes(2));
@@ -47,7 +46,6 @@ namespace service_registry_test
 
             registrationTicket.Success.Should().BeFalse();
             registrationTicket.FailReason.Should().Be(RegistrationFailReasons.ResourceMustNotBeEmpty);
-            registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
             registrationTicket.RegistrationExpiresAt.Should().Be(DateTime.MinValue);
@@ -65,7 +63,6 @@ namespace service_registry_test
 
             registrationTicket.Success.Should().BeFalse();
             registrationTicket.FailReason.Should().Be(RegistrationFailReasons.InstanceServiceUriMustNotBeEmpty);
-            registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
             registrationTicket.RegistrationExpiresAt.Should().Be(DateTime.MinValue);
@@ -83,7 +80,6 @@ namespace service_registry_test
 
             registrationTicket.Success.Should().BeFalse();
             registrationTicket.FailReason.Should().Be(RegistrationFailReasons.InstanceServiceUriMustBeValidUri);
-            registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
             registrationTicket.RegistrationExpiresAt.Should().Be(DateTime.MinValue);
@@ -102,7 +98,7 @@ namespace service_registry_test
             registration = new ServiceRegistration(resource, instanceServiceUri2);
             var ticket2 = _ServiceRegistry.Register(registration);
 
-            ticket1.InstanceRegistrationUniqueIdentifier.Should().NotBe(ticket2.InstanceRegistrationUniqueIdentifier);
+            ticket1.InstanceServiceUri.Should().NotBe(ticket2.InstanceServiceUri);
         }
 
         [TestMethod]
@@ -115,7 +111,7 @@ namespace service_registry_test
             var ticket1 = _ServiceRegistry.Register(registration);
             var ticket2 = _ServiceRegistry.Register(registration);
 
-            ticket1.InstanceRegistrationUniqueIdentifier.Should().Be(ticket2.InstanceRegistrationUniqueIdentifier);
+            ticket1.InstanceServiceUri.Should().Be(ticket2.InstanceServiceUri);
         }
     }
 }
