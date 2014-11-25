@@ -29,16 +29,15 @@ namespace service_discovery
         {
             var resource = registration.Resource;
             var serviceUriString = registration.InstanceServiceUri;
-            var healthCheckUriString = registration.InstanceHealthCheckUri;
 
-            var invalidResponse =  ValidateRegistration(resource, serviceUriString, healthCheckUriString);
+            var invalidResponse =  ValidateRegistration(resource, serviceUriString);
 
             if (!ReferenceEquals(invalidResponse, null))
             {
                 return invalidResponse;
             }
 
-            var serviceInstance = _ServiceRegistryRepository.AddOrUpdate(resource, serviceUriString, healthCheckUriString);
+            var serviceInstance = _ServiceRegistryRepository.AddOrUpdate(resource, serviceUriString);
 
             var successResult = new RegistrationTicket(serviceInstance);
 
@@ -55,7 +54,7 @@ namespace service_discovery
             return validInstances;
         }
 
-        private static RegistrationTicket ValidateRegistration(string resource, string serviceUriString, string healthCheckUriString)
+        private static RegistrationTicket ValidateRegistration(string resource, string serviceUriString)
         {
             if (string.IsNullOrWhiteSpace(resource))
             {
@@ -69,22 +68,10 @@ namespace service_discovery
                 return serviceUriNullResponse;
             }
 
-            if (string.IsNullOrWhiteSpace(healthCheckUriString))
-            {
-                var healthCheckUriNullResponse = new RegistrationTicket(RegistrationFailReasons.InstanceHealthCheckUriMustNotBeEmpty, resource, serviceUriString);
-                return healthCheckUriNullResponse;
-            }
-
             if (!Uri.IsWellFormedUriString(serviceUriString, UriKind.Absolute))
             {
                 var serviceUriNotValid = new RegistrationTicket(RegistrationFailReasons.InstanceServiceUriMustBeValidUri, resource, serviceUriString);
                 return serviceUriNotValid;
-            }
-
-            if (!Uri.IsWellFormedUriString(healthCheckUriString, UriKind.Absolute))
-            {
-                var healthCheckUriNotValid = new RegistrationTicket(RegistrationFailReasons.InstanceHealthCheckUriMustBeValidUri, resource, serviceUriString);
-                return healthCheckUriNotValid;
             }
 
             return null;
@@ -95,18 +82,15 @@ namespace service_discovery
     {
         private readonly string _Resource;
         private readonly string _InstanceServiceUri;
-        private readonly string _InstanceHealthCheckUri;
 
-        public ServiceRegistration(string resource, string instanceServiceUri, string instanceHealthCheckUri)
+        public ServiceRegistration(string resource, string instanceServiceUri)
         {
             _Resource = resource;
             _InstanceServiceUri = instanceServiceUri;
-            _InstanceHealthCheckUri = instanceHealthCheckUri;
         }
 
         public string Resource { get { return _Resource; } }
         public string InstanceServiceUri { get { return _InstanceServiceUri; } }
-        public string InstanceHealthCheckUri { get { return _InstanceHealthCheckUri; } }
     }
 
     public class RegistrationTicket
@@ -174,29 +158,24 @@ namespace service_discovery
         None,
         ResourceMustNotBeEmpty,
         InstanceServiceUriMustNotBeEmpty,
-        InstanceServiceUriMustBeValidUri,
-        InstanceHealthCheckUriMustNotBeEmpty,
-        InstanceHealthCheckUriMustBeValidUri
+        InstanceServiceUriMustBeValidUri
     }
 
     public class ServiceInstance
     {
         private readonly string _Resource;
         private readonly string _ServiceUri;
-        private readonly string _HealthCheckUri;
         private readonly DateTime _RegistrationExpiresAt;
         private readonly Guid _UniqueIdentifier;
 
         internal ServiceInstance(
             string resource,
             string serviceUri,
-            string healthCheckUri,
             DateTime registrationExpiresAt)
             : this(
             Guid.NewGuid(),
             resource,
             serviceUri,
-            healthCheckUri,
             registrationExpiresAt) { }
 
         internal ServiceInstance(
@@ -206,25 +185,21 @@ namespace service_discovery
             currentInstance.UniqueIdentifier,
             currentInstance.Resource,
             currentInstance.ServiceUri,
-            currentInstance.HealthCheckUri,
             registrationExpiresAt) { }
 
         public ServiceInstance(
             Guid uniqueIdentifier,
             string resource,
             string serviceUri,
-            string healthCheckUri,
             DateTime registrationExpiresAt)
         {
             if (ReferenceEquals(uniqueIdentifier, Guid.Empty)) throw new ArgumentNullException("uniqueIdentifier");
             if (string.IsNullOrWhiteSpace(resource)) throw new ArgumentNullException("resource");
             if (string.IsNullOrWhiteSpace(serviceUri)) throw new ArgumentNullException("serviceUri");
-            if (string.IsNullOrWhiteSpace(healthCheckUri)) throw new ArgumentNullException("healthCheckUri");
 
             _UniqueIdentifier = uniqueIdentifier;
             _Resource = resource;
             _ServiceUri = serviceUri;
-            _HealthCheckUri = healthCheckUri;
             _RegistrationExpiresAt = registrationExpiresAt;
         }
 
@@ -236,11 +211,6 @@ namespace service_discovery
         public string Resource
         {
             get { return _Resource; }
-        }
-
-        public string HealthCheckUri
-        {
-            get { return _HealthCheckUri; }
         }
 
         public string ServiceUri
