@@ -16,9 +16,10 @@ namespace service_discovery
         }
 
 
-        public IEnumerable<ServiceInstance> GetServiceInstancesForResource(string resource)
+        public IEnumerable<ServiceInstance> GetServiceInstancesForResource(string resource, IEnumerable<string> tags)
         {
             if (string.IsNullOrWhiteSpace(resource)) throw new ArgumentNullException("resource");
+            if (ReferenceEquals(tags, null)) throw new ArgumentNullException("tags");
 
             var normalizedResource = NormalizeKey(resource);
             ConcurrentDictionary<string, ServiceInstance> instancesLookup;
@@ -31,7 +32,13 @@ namespace service_discovery
             var instances = instancesLookup.Values;
             var validInstances = instances.Where(instance => instance.RegistrationExpiresAt > utcNow);
 
-            return validInstances;
+            if (tags == Enumerable.Empty<string>()) 
+                return validInstances;
+
+            var filterTags =  tags.ToList();
+            var filteredInstances = validInstances.Where(instance => filterTags.All((tag) => instance.Tags.Contains(tag)));
+
+            return filteredInstances;
         }
 
         public ServiceInstance AddOrUpdate(string resource, string serviceUriString, IEnumerable<string> tags, DateTime registrationExperation)

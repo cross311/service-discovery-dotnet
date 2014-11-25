@@ -21,7 +21,9 @@ namespace service_registry_test
         public void ReturnZeroInstancesIfNoneRegistered()
         {
             var resource = "test-service";
-            var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(resource).ToList();
+
+            var serviceInstancesRequest = new ServiceInstancesRequest(resource);
+            var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(serviceInstancesRequest).ToList();
 
             serviceInstances.Count.Should().Be(0);
         }
@@ -36,7 +38,9 @@ namespace service_registry_test
             var registration = new ServiceRegistration(resource, instanceServiceUri, instanceTags);
             _ServiceRegistry.Register(registration);
 
-            var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(resource).ToList();
+
+            var serviceInstancesRequest = new ServiceInstancesRequest(resource);
+            var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(serviceInstancesRequest).ToList();
 
             serviceInstances.Count.Should().Be(1);
             var instance = serviceInstances[0];
@@ -58,7 +62,9 @@ namespace service_registry_test
             registration = new ServiceRegistration(resource, instanceServiceUri2);
             _ServiceRegistry.Register(registration);
 
-            var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(resource).ToList();
+
+            var serviceInstancesRequest = new ServiceInstancesRequest(resource);
+            var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(serviceInstancesRequest).ToList();
 
             serviceInstances.Count.Should().Be(2);
             serviceInstances.Should().Contain((instance) => instance.ServiceUri == instanceServiceUri1);
@@ -75,7 +81,9 @@ namespace service_registry_test
             _ServiceRegistry.Register(registration);
             _ServiceRegistry.Register(registration);
 
-            var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(resource).ToList();
+
+            var serviceInstancesRequest = new ServiceInstancesRequest(resource);
+            var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(serviceInstancesRequest).ToList();
 
             serviceInstances.Count.Should().Be(1);
             serviceInstances.Should().Contain((instance) => instance.ServiceUri == instanceServiceUri);
@@ -91,9 +99,34 @@ namespace service_registry_test
             var registration = new ServiceRegistration(resource, instanceServiceUri, timeToLive);
             _ServiceRegistry.Register(registration);
 
-            var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(resource).ToList();
+            var serviceInstancesRequest = new ServiceInstancesRequest(resource);
+            var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(serviceInstancesRequest).ToList();
 
             serviceInstances.Count.Should().Be(0);
         }
+
+        [TestMethod]
+        public void ReturnOneInstancesIfTwoDifferentSericeUrisRegisteredButOneDoesNotHaveTag()
+        {
+            var resource = "test-service";
+            var instanceServiceUri1 = "http://testservice1.com/api/v1";
+            var instanceTags1 = new[] {"environment:validation"};
+            var instanceServiceUri2 = "http://testservice2.com/api/v1";
+            var instanceTags2 = new[] { "environment:sandbox" };
+
+
+            var registration = new ServiceRegistration(resource, instanceServiceUri1, instanceTags1);
+            _ServiceRegistry.Register(registration);
+
+            registration = new ServiceRegistration(resource, instanceServiceUri2, instanceTags2);
+            _ServiceRegistry.Register(registration);
+
+            var serviceInstancesRequest = new ServiceInstancesRequest(resource, instanceTags2);
+            var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(serviceInstancesRequest).ToList();
+
+            serviceInstances.Count.Should().Be(1);
+            serviceInstances.Should().Contain((instance) => instance.ServiceUri == instanceServiceUri2);
+        }
+
     }
 }

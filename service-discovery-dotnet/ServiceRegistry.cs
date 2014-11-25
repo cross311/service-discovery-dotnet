@@ -43,12 +43,17 @@ namespace service_discovery
             return successResult;
         }
 
-        public IEnumerable<ServiceInstance> GetServiceInstancesForResource(string resource)
+        public IEnumerable<ServiceInstance> GetServiceInstancesForResource(ServiceInstancesRequest request)
         {
+            if(ReferenceEquals(request, null)) throw new ArgumentNullException("request");
+
+            var resource = request.Resource;
+            var tags = request.Tags;
+
             if(string.IsNullOrWhiteSpace(resource))
                 return _EmptyServiceInstances;
 
-            var validInstances = _ServiceRegistryRepository.GetServiceInstancesForResource(resource);
+            var validInstances = _ServiceRegistryRepository.GetServiceInstancesForResource(resource, tags);
 
             return validInstances;
         }
