@@ -66,7 +66,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\service-registry-dotnet\service-discovery-dotnet.csproj">
+    <ProjectReference Include="..\service-discovery-dotnet\service-discovery-dotnet.csproj">
       <Project>{f5aea8d1-ae95-48d0-a1b4-7b802b20896d}</Project>
       <Name>service-discovery-dotnet</Name>
     </ProjectReference>
