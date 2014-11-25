@@ -1,13 +1,15 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
+using service_registry_dotnet;
+using System.Collections.Generic;
 
 namespace service_registry_test
 {
     [TestClass]
     public class ServiceRegistryRegistrationShould
     {
-        ServiceRegistryRegistrationShould _ServiceRegistry;
+        ServiceRegistry _ServiceRegistry;
 
         [TestInitialize]
         public void TestInitialize()
@@ -50,7 +52,7 @@ namespace service_registry_test
             registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.TicketGoodUntil.Should().BeExactly(DateTime.MinValue);
+            registrationTicket.TicketGoodUntil.Should().Be(DateTime.MinValue);
         }
 
         [TestMethod]
@@ -69,7 +71,7 @@ namespace service_registry_test
             registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.TicketGoodUntil.Should().BeExactly(DateTime.MinValue);
+            registrationTicket.TicketGoodUntil.Should().Be(DateTime.MinValue);
         }
 
         [TestMethod]
@@ -88,7 +90,7 @@ namespace service_registry_test
             registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.TicketGoodUntil.Should().BeExactly(DateTime.MinValue);
+            registrationTicket.TicketGoodUntil.Should().Be(DateTime.MinValue);
         }
 
         [TestMethod]
@@ -107,7 +109,7 @@ namespace service_registry_test
             registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.TicketGoodUntil.Should().BeExactly(DateTime.MinValue);
+            registrationTicket.TicketGoodUntil.Should().Be(DateTime.MinValue);
         }
 
         [TestMethod]
@@ -126,7 +128,39 @@ namespace service_registry_test
             registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
             registrationTicket.Resource.Should().Be(resource);
             registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.TicketGoodUntil.Should().BeExactly(DateTime.MinValue);
+            registrationTicket.TicketGoodUntil.Should().Be(DateTime.MinValue);
+        }
+
+        [TestMethod]
+        public void AssignDifferentUniqueIdentifiersForDifferentServiceUris()
+        {
+            var resource = "test-service";
+            var instanceServiceUri1 = "http://testservice1.com/api/v1";
+            var instanceHealthCheckUri1 = "http://testservice1.com/health_check";
+            var instanceServiceUri2 = "http://testservice2.com/api/v1";
+            var instanceHealthCheckUri2 = "http://testservice2.com/health_check";
+
+            var registration = new ServiceRegistration(resource, instanceServiceUri1, instanceHealthCheckUri1);
+            var ticket1 = _ServiceRegistry.Register(registration);
+
+            registration = new ServiceRegistration(resource, instanceServiceUri2, instanceHealthCheckUri2);
+            var ticket2 = _ServiceRegistry.Register(registration);
+
+            ticket1.InstanceRegistrationUniqueIdentifier.Should().NotBe(ticket2.InstanceRegistrationUniqueIdentifier);
+        }
+
+        [TestMethod]
+        public void AssignSameUniqueIdentifiersForSameServiceUris()
+        {
+            var resource = "test-service";
+            var instanceServiceUri = "http://testservice1.com/api/v1";
+            var instanceHealthCheckUri = "http://testservice1.com/health_check";
+
+            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceHealthCheckUri);
+            var ticket1 = _ServiceRegistry.Register(registration);
+            var ticket2 = _ServiceRegistry.Register(registration);
+
+            ticket1.InstanceRegistrationUniqueIdentifier.Should().Be(ticket2.InstanceRegistrationUniqueIdentifier);
         }
     }
 }

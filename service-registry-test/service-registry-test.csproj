@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="ServiceRegistryRegistrationShould.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceRegistryGetServiceInstancesShould.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
