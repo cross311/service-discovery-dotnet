@@ -158,5 +158,21 @@ namespace service_registry_test
 
             registrationTicket.RegistrationExpiresAt.Should().BeCloseTo(DateTime.UtcNow.Add(timeToLive));
         }
+
+        [TestMethod]
+        public void AcceptRegistrationTags()
+        {
+            var resource = "test-service";
+            var instanceServiceUri = "http://testservice.com/api/v1";
+            var instanceTags = new[] {"environment:sandbox", "client_division:123456"};
+
+            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceTags);
+
+            var registrationTicket = _ServiceRegistry.Register(registration);
+
+            registrationTicket.Success.Should().BeTrue();
+            registrationTicket.FailReason.Should().Be(RegistrationFailReasons.None);
+            registrationTicket.InstanceTags.Should().Contain(instanceTags);
+        }
     }
 }

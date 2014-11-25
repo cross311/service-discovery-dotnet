@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace service_discovery
@@ -33,11 +34,12 @@ namespace service_discovery
             return validInstances;
         }
 
-        public ServiceInstance AddOrUpdate(string resource, string serviceUriString, DateTime registrationExperation)
+        public ServiceInstance AddOrUpdate(string resource, string serviceUriString, IEnumerable<string> tags, DateTime registrationExperation)
         {
             if (string.IsNullOrWhiteSpace(resource)) throw new ArgumentNullException("resource");
             if (string.IsNullOrWhiteSpace(serviceUriString)) throw new ArgumentNullException("serviceUriString");
             if (registrationExperation == DateTime.MinValue) throw new ArgumentOutOfRangeException("registrationExperation");
+            if(ReferenceEquals(tags, null)) throw new ArgumentNullException("tags");
 
 
             var resourceNormalized = NormalizeKey(resource);
@@ -45,11 +47,14 @@ namespace service_discovery
             var resourceInstances = _Repository.GetOrAdd(resourceNormalized, new ConcurrentDictionary<string, ServiceInstance>());
 
             var serviceUriNormalized = NormalizeKey(serviceUriString);
+            var tagsNormalized = tags.Select(NormalizeKey).ToList();
+            var tagsReadonly = new ReadOnlyCollection<string>(tagsNormalized);
 
-            var serviceInstance = resourceInstances.AddOrUpdate(
+            var serviceInstance = new ServiceInstance(resourceNormalized, serviceUriNormalized, tagsReadonly, registrationExperation);
+            serviceInstance = resourceInstances.AddOrUpdate(
                                     serviceUriNormalized,
-                                    new ServiceInstance(resourceNormalized, serviceUriNormalized, registrationExperation),
-                                    (_k, currentInstance) => new ServiceInstance(currentInstance, registrationExperation));
+                                    serviceInstance,
+                                    (_k, _v) => serviceInstance);
             return serviceInstance;
         }
 

@@ -31,8 +31,9 @@ namespace service_registry_test
         {
             var resource = "test-service";
             var instanceServiceUri = "http://testservice.com/api/v1";
+            var instanceTags = new[] {"tag:test"};
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri);
+            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceTags);
             _ServiceRegistry.Register(registration);
 
             var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(resource).ToList();
@@ -41,6 +42,7 @@ namespace service_registry_test
             var instance = serviceInstances[0];
             instance.ServiceUri.Should().Be(instanceServiceUri);
             instance.RegistrationExpiresAt.Should().BeWithin(TimeSpan.FromSeconds(1));
+            instance.Tags.Should().Contain(instanceTags[0]);
         }
 
         [TestMethod]
