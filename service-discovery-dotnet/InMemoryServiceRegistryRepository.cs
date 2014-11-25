@@ -41,11 +41,10 @@ namespace service_discovery
             return validInstances;
         }
 
-        public ServiceInstance AddOrUpdate(string resource, string serviceUriString, string healthCheckUriString)
+        public ServiceInstance AddOrUpdate(string resource, string serviceUriString)
         {
             if (string.IsNullOrWhiteSpace(resource)) throw new ArgumentNullException("resource");
             if (string.IsNullOrWhiteSpace(serviceUriString)) throw new ArgumentNullException("serviceUriString");
-            if (string.IsNullOrWhiteSpace(healthCheckUriString)) throw new ArgumentNullException("healthCheckUriString");
 
 
             var ticketValidForTwoMinutes = DateTime.UtcNow.Add(_CheckInWithinTime);
@@ -58,7 +57,7 @@ namespace service_discovery
 
             var serviceInstance = resourceInstances.AddOrUpdate(
                                     serviceUriNormalized,
-                                    new ServiceInstance(resourceNormalized, serviceUriNormalized, healthCheckUriString, ticketValidForTwoMinutes),
+                                    new ServiceInstance(resourceNormalized, serviceUriNormalized, ticketValidForTwoMinutes),
                                     (_k, currentInstance) => new ServiceInstance(currentInstance, ticketValidForTwoMinutes));
             return serviceInstance;
         }

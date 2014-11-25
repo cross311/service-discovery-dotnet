@@ -31,9 +31,8 @@ namespace service_registry_test
         {
             var resource = "test-service";
             var instanceServiceUri = "http://testservice.com/api/v1";
-            var instanceHealthCheckUri = "http://testservice.com/health_check";
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceHealthCheckUri);
+            var registration = new ServiceRegistration(resource, instanceServiceUri);
             _ServiceRegistry.Register(registration);
 
             var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(resource).ToList();
@@ -50,14 +49,12 @@ namespace service_registry_test
         {
             var resource = "test-service";
             var instanceServiceUri1 = "http://testservice1.com/api/v1";
-            var instanceHealthCheckUri1 = "http://testservice1.com/health_check";
             var instanceServiceUri2 = "http://testservice2.com/api/v1";
-            var instanceHealthCheckUri2 = "http://testservice2.com/health_check";
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri1, instanceHealthCheckUri1);
+            var registration = new ServiceRegistration(resource, instanceServiceUri1);
             _ServiceRegistry.Register(registration);
 
-            registration = new ServiceRegistration(resource, instanceServiceUri2, instanceHealthCheckUri2);
+            registration = new ServiceRegistration(resource, instanceServiceUri2);
             _ServiceRegistry.Register(registration);
 
             var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(resource).ToList();
@@ -72,9 +69,8 @@ namespace service_registry_test
         {
             var resource = "test-service";
             var instanceServiceUri = "http://testservice1.com/api/v1";
-            var instanceHealthCheckUri = "http://testservice1.com/health_check";
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceHealthCheckUri);
+            var registration = new ServiceRegistration(resource, instanceServiceUri);
             _ServiceRegistry.Register(registration);
             _ServiceRegistry.Register(registration);
 
@@ -91,9 +87,8 @@ namespace service_registry_test
 
             var resource = "test-service";
             var instanceServiceUri = "http://testservice.com/api/v1";
-            var instanceHealthCheckUri = "http://testservice.com/health_check";
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceHealthCheckUri);
+            var registration = new ServiceRegistration(resource, instanceServiceUri);
             _ServiceRegistry.Register(registration);
 
             var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(resource).ToList();

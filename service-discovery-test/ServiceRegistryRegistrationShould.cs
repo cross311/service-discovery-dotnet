@@ -22,9 +22,8 @@ namespace service_registry_test
         {
             var resource = "test-service";
             var instanceServiceUri = "http://testservice.com/api/v1";
-            var instanceHealthCheckUri = "http://testservice.com/health_check";
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceHealthCheckUri);
+            var registration = new ServiceRegistration(resource, instanceServiceUri);
 
             var registrationTicket = _ServiceRegistry.Register(registration);
 
@@ -41,9 +40,8 @@ namespace service_registry_test
         {
             var resource = string.Empty;
             var instanceServiceUri = "http://testservice.com/api/v1";
-            var instanceHealthCheckUri = "http://testservice.com/health_check";
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceHealthCheckUri);
+            var registration = new ServiceRegistration(resource, instanceServiceUri);
 
             var registrationTicket = _ServiceRegistry.Register(registration);
 
@@ -60,9 +58,8 @@ namespace service_registry_test
         {
             var resource = "test-service";
             var instanceServiceUri = string.Empty;
-            var instanceHealthCheckUri = "http://testservice.com/health_check";
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceHealthCheckUri);
+            var registration = new ServiceRegistration(resource, instanceServiceUri);
 
             var registrationTicket = _ServiceRegistry.Register(registration);
 
@@ -79,9 +76,8 @@ namespace service_registry_test
         {
             var resource = "test-service";
             var instanceServiceUri = "badUri";
-            var instanceHealthCheckUri = "http://testservice.com/health_check";
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceHealthCheckUri);
+            var registration = new ServiceRegistration(resource, instanceServiceUri);
 
             var registrationTicket = _ServiceRegistry.Register(registration);
 
@@ -94,56 +90,16 @@ namespace service_registry_test
         }
 
         [TestMethod]
-        public void RejectEmptyInstanceHealthCheckUri()
-        {
-            var resource = "test-service";
-            var instanceServiceUri = "http://testservice.com/api/v1";
-            var instanceHealthCheckUri = string.Empty;
-
-            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceHealthCheckUri);
-
-            var registrationTicket = _ServiceRegistry.Register(registration);
-
-            registrationTicket.Success.Should().BeFalse();
-            registrationTicket.FailReason.Should().Be(RegistrationFailReasons.InstanceHealthCheckUriMustNotBeEmpty);
-            registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
-            registrationTicket.Resource.Should().Be(resource);
-            registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.RegistrationExpiresAt.Should().Be(DateTime.MinValue);
-        }
-
-        [TestMethod]
-        public void RejectNoneUriInstanceHealthCheckUri()
-        {
-            var resource = "test-service";
-            var instanceServiceUri = "http://testservice.com/api/v1";
-            var instanceHealthCheckUri = "badUri";
-
-            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceHealthCheckUri);
-
-            var registrationTicket = _ServiceRegistry.Register(registration);
-
-            registrationTicket.Success.Should().BeFalse();
-            registrationTicket.FailReason.Should().Be(RegistrationFailReasons.InstanceHealthCheckUriMustBeValidUri);
-            registrationTicket.InstanceRegistrationUniqueIdentifier.Should().Be(Guid.Empty);
-            registrationTicket.Resource.Should().Be(resource);
-            registrationTicket.InstanceServiceUri.Should().Be(instanceServiceUri);
-            registrationTicket.RegistrationExpiresAt.Should().Be(DateTime.MinValue);
-        }
-
-        [TestMethod]
         public void AssignDifferentUniqueIdentifiersForDifferentServiceUris()
         {
             var resource = "test-service";
             var instanceServiceUri1 = "http://testservice1.com/api/v1";
-            var instanceHealthCheckUri1 = "http://testservice1.com/health_check";
             var instanceServiceUri2 = "http://testservice2.com/api/v1";
-            var instanceHealthCheckUri2 = "http://testservice2.com/health_check";
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri1, instanceHealthCheckUri1);
+            var registration = new ServiceRegistration(resource, instanceServiceUri1);
             var ticket1 = _ServiceRegistry.Register(registration);
 
-            registration = new ServiceRegistration(resource, instanceServiceUri2, instanceHealthCheckUri2);
+            registration = new ServiceRegistration(resource, instanceServiceUri2);
             var ticket2 = _ServiceRegistry.Register(registration);
 
             ticket1.InstanceRegistrationUniqueIdentifier.Should().NotBe(ticket2.InstanceRegistrationUniqueIdentifier);
@@ -154,9 +110,8 @@ namespace service_registry_test
         {
             var resource = "test-service";
             var instanceServiceUri = "http://testservice1.com/api/v1";
-            var instanceHealthCheckUri = "http://testservice1.com/health_check";
 
-            var registration = new ServiceRegistration(resource, instanceServiceUri, instanceHealthCheckUri);
+            var registration = new ServiceRegistration(resource, instanceServiceUri);
             var ticket1 = _ServiceRegistry.Register(registration);
             var ticket2 = _ServiceRegistry.Register(registration);
 
