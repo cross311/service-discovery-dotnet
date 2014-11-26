@@ -10,8 +10,8 @@ namespace service_discovery
         private static readonly IEnumerable<ServiceInstance> _EmptyServiceInstances = Enumerable.Empty<ServiceInstance>();
         private readonly IServiceRegistryRepository _ServiceRegistryRepository;
 
-        public ServiceRegistry() 
-            : this(new InMemoryServiceRegistryRepository()) { }
+        public ServiceRegistry()
+            : this(new InMemoryListServiceRegistryRepository()) { }
 
         internal ServiceRegistry(IServiceRegistryRepository serviceRegistryRepository)
         {
