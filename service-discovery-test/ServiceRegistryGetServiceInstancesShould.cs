@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using service_discovery;
 using FluentAssertions;
 using System.Linq;
+using System.Threading;
 
 namespace service_registry_test
 {
@@ -98,6 +99,8 @@ namespace service_registry_test
 
             var registration = new ServiceRegistration(resource, instanceServiceUri, timeToLive);
             _ServiceRegistry.Register(registration);
+
+            Thread.Sleep(2);
 
             var serviceInstancesRequest = new ServiceInstancesRequest(resource);
             var serviceInstances = _ServiceRegistry.GetServiceInstancesForResource(serviceInstancesRequest).ToList();
