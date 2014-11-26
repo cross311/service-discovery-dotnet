@@ -39,7 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InMemoryServiceRegistryRepository.cs" />
+    <Compile Include="InMemoryListServiceRegistryRepository.cs" />
     <Compile Include="IServiceRegistry.cs" />
     <Compile Include="IServiceRegistryRepository.cs" />
     <Compile Include="ServiceInstancesRequest.cs" />
